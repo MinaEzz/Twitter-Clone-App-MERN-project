@@ -4,12 +4,14 @@ require("dotenv").config();
 const port = process.env.PORT || 8000;
 const connectMongoDB = require("./db/connectMongoDB");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const { ERROR } = require("./utils/httpStatusText");
 
 const authRouter = require("./routes/auth.routes");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // ROUTES
 app.use("/api/auth", authRouter);
