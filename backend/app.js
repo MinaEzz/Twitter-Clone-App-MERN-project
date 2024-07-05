@@ -5,9 +5,16 @@ const port = process.env.PORT || 8000;
 const connectMongoDB = require("./db/connectMongoDB");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const { v2: cloudinary } = require("cloudinary");
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 const { ERROR } = require("./utils/httpStatusText");
 
 const authRouter = require("./routes/auth.routes");
+const userRouter = require("./routes/user.routes");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -15,6 +22,7 @@ app.use(cookieParser());
 
 // ROUTES
 app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
 // GLOBAL MIDDLEWARE FOR NOT FOUND ROUTERS
 app.all("*", (req, res, next) => {
   const error = new Error("This Resource Is Not Available");
