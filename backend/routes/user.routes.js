@@ -12,6 +12,6 @@ router.use(protectedRoute);
 router.route("/profile/:username").get(getUserProfile); // DONE
 router.route("/follow/:id").post(followUser); // DONE
 router.route("/suggested").get(getSuggestedUsers); // DONE
-router.route("/update").patch(updateUser); // TODO
+router.route("/update").patch(updateUser); // DONE
 
 module.exports = router;

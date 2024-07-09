@@ -52,12 +52,6 @@ const followUser = async (req, res, next) => {
       await User.findByIdAndUpdate(req.user._id, {
         $pull: { following: id },
       });
-      const newNotification = new Notification({
-        type: "unfollow",
-        from: req.user._id,
-        to: modifyUser._id,
-      });
-      await newNotification.save();
       // REVIEW: send a user id in the response
       res.status(200).json({
         status: SUCCESS,
@@ -175,20 +169,22 @@ const updateUser = async (req, res, next) => {
       // OPTIMIZE: we need to delete the old profile image before adding the new one
       //https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg
       if (user.profileImg) {
-        await cloudinary.destroy(
+        await cloudinary.uploader.destroy(
           user.profileImg.split("/").pop().split(".")[0]
         );
       }
-      const uploadResult = await cloudinary.uploader.uploadImage(profileImg);
+      const uploadResult = await cloudinary.uploader.upload(profileImg);
       profileImg = uploadResult.secure_url;
     }
     if (coverImg) {
       // OPTIMIZE: we need to delete the old cover image before adding the new one
       if (user.coverImg) {
-        await cloudinary.destroy(user.coverImg.split("/").pop().split(".")[0]);
+        await cloudinary.uploader.destroy(
+          user.coverImg.split("/").pop().split(".")[0]
+        );
       }
 
-      const uploadResult = await cloudinary.uploader.uploadImage(coverImg);
+      const uploadResult = await cloudinary.uploader.upload(coverImg);
       coverImg = uploadResult.secure_url;
     }
     user.fullName = fullName || user.fullName;
@@ -196,6 +192,8 @@ const updateUser = async (req, res, next) => {
     user.username = username || user.username;
     user.profileImg = profileImg || user.profileImg;
     user.coverImg = coverImg || user.coverImg;
+    user.bio = bio || user.bio;
+    user.link = link || user.link;
     await user.save();
     user.password = null;
     res.status(200).json({

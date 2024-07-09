@@ -15,6 +15,7 @@ const { ERROR } = require("./utils/httpStatusText");
 
 const authRouter = require("./routes/auth.routes");
 const userRouter = require("./routes/user.routes");
+const postRouter = require("./routes/post.routes");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -23,6 +24,7 @@ app.use(cookieParser());
 // ROUTES
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
+app.use("/api/posts", postRouter);
 // GLOBAL MIDDLEWARE FOR NOT FOUND ROUTERS
 app.all("*", (req, res, next) => {
   const error = new Error("This Resource Is Not Available");
