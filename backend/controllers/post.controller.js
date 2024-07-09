@@ -220,7 +220,7 @@ const getAllPosts = async (req, res, next) => {
     if (posts.length === 0) {
       return res.status(200).json({
         status: SUCCESS,
-        data: { posts },
+        data: { posts: [] },
         message: "no posts in the database",
       });
     }
@@ -260,7 +260,7 @@ const getPostsByUserId = async (req, res, next) => {
     if (posts.length === 0) {
       return res.status(200).json({
         status: SUCCESS,
-        data: { posts },
+        data: { posts: [] },
         message: "User have no posts",
       });
     }
@@ -302,7 +302,7 @@ const getFollowingPosts = async (req, res, next) => {
     if (followingPosts.length === 0) {
       return res.status(200).json({
         status: SUCCESS,
-        data: { followingPosts },
+        data: { followingPosts: [] },
         message: "no posts in the database",
       });
     }
@@ -343,7 +343,7 @@ const getLikedPosts = async (req, res, next) => {
     if (likedPosts.length === 0) {
       return res.status(200).json({
         status: SUCCESS,
-        data: { likedPosts },
+        data: { likedPosts: [] },
         message: "no posts in the database",
       });
     }
