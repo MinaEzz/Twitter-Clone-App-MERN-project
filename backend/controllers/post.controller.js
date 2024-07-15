@@ -277,7 +277,6 @@ const getPostsByUserId = async (req, res, next) => {
   }
 };
 
-// NOT Working Well
 const getFollowingPosts = async (req, res, next) => {
   const userId = req.user._id;
   try {
@@ -288,28 +287,21 @@ const getFollowingPosts = async (req, res, next) => {
       error.code = 404;
       return next(error);
     }
-    const followingPosts = await Post.find({
-      user: { $in: user.following },
-    })
+    const followingPosts = await Post.find({ user: { $in: user.following } })
       .sort({ createdAt: -1 })
       .populate("user", "-password")
       .populate("comments.user", "-password");
-    if (!followingPosts) {
-      const error = new Error("No posts found");
-      error.status = FAIL;
-      error.code = 404;
-      return next(error);
-    }
+
     if (followingPosts.length === 0) {
       return res.status(200).json({
         status: SUCCESS,
-        data: { followingPosts: [] },
+        data: { posts: [] },
         message: "no posts in the database",
       });
     }
     res.status(200).json({
       status: SUCCESS,
-      data: { followingPosts },
+      data: { posts: followingPosts },
       message: "Following posts fetched successfully",
     });
   } catch (err) {
