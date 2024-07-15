@@ -2,30 +2,63 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 
 import XSvg from "../../../components/svgs/X";
-
 import { MdOutlineMail } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
-    email: "",
-    username: "",
     fullName: "",
+    username: "",
+    email: "",
     password: "",
+  });
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const queryClient = useQueryClient();
+  const { mutate, isError, error, isPending } = useMutation({
+    mutationFn: async ({ fullName, username, email, password }) => {
+      try {
+        const response = await fetch(BASE_URL + "/api/auth/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+
+          body: JSON.stringify({ fullName, username, email, password }),
+        });
+        const responseData = await response.json();
+        if (!response.ok) {
+          console.log(responseData);
+          throw new Error(responseData.message || "Something Went Wrong.");
+        }
+        console.log(responseData);
+        return responseData;
+      } catch (error) {
+        console.log(error.message || "Something Went Wrong.");
+        throw new Error(error.message || "Something Went Wrong.");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+    },
+    retry: false,
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+    mutate(formData);
   };
-
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const isError = false;
 
   return (
     <div className="max-w-screen-xl mx-auto flex h-screen px-10">
@@ -85,15 +118,25 @@ const SignupPage = () => {
               value={formData.password}
             />
           </label>
-          <button className="btn rounded-full btn-primary text-white">
-            Sign up
+          <button
+            className="btn rounded-full btn-primary text-white"
+            type="submit"
+          >
+            {isPending ? "Loading..." : "Sign up"}
           </button>
-          {isError && <p className="text-red-500">Something went wrong</p>}
+          {isError && (
+            <p className="text-red-500">
+              {error.message || "Something went wrong"}
+            </p>
+          )}
         </form>
         <div className="flex flex-col lg:w-2/3 gap-2 mt-4">
           <p className="text-white text-lg">Already have an account?</p>
           <Link to="/login">
-            <button className="btn rounded-full btn-primary text-white btn-outline w-full">
+            <button
+              className="btn rounded-full btn-primary text-white btn-outline w-full"
+              type="button"
+            >
               Sign in
             </button>
           </Link>

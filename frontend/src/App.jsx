@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 // pages
 import {
   SignupPage,
@@ -10,44 +15,86 @@ import {
 // components
 import Sidebar from "./components/shared/Sidebar";
 import RightPanel from "./components/shared/RightPanel";
+import { Toaster } from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
+import LoadingSpinner from "./components/shared/LoadingSpinner";
+
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 const App = () => {
+  const { data: authUser, isLoading } = useQuery({
+    queryKey: ["authUser"],
+    queryFn: async () => {
+      try {
+        const response = await fetch(BASE_URL + "/api/auth/me", {
+          method: "GET",
+          credentials: "include",
+        });
+        const responseData = await response.json();
+        if (responseData.data === null) return null;
+        if (!response.ok) {
+          console.log(responseData);
+          throw new Error(responseData.message || "Something Went Wrong.");
+        }
+        console.log(responseData);
+        return responseData;
+      } catch (error) {
+        throw new Error(error.message || "Something Went Wrong.");
+      }
+    },
+    retry: false,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
   return (
     <main className="flex max-w-6xl mx-auto">
-      {
-        // components are from UI-Design steps
-        // DONE: we need to install react router dom and react icons...
-        // DONE: we need to copy and paste signup and login pages
-        // DONE: we need to copy and paste the svg in X.jsx file
-        // DONE: we need to copy and paste home page
-        // TODO: we need to copy and paste create post component
-        // DONE: we need to copy and paste sidebar component
-        // REVIEW: dummy data in the utils folder
-        // DONE: we need to copy and paste right panel component
-        // REVIEW: skeleton components
-        // DONE: we need to copy and paste posts component
-        // DONE: we need to copy and paste notifications page
-        // REVIEW: loading spinner component
-        // DONE: we need to copy and paste profile page
-        // DONE: we need to copy and paste edit profile modal
-        // REVIEW: daisy ui inputs, modals, skeletons, loading spinner
-        // DONE: make sure that inputs of images accept only images
-        // DONE:commit the ui is done 2- UI design completed
-        // REVIEW: 3:31
-        //
-        /*
-         */
-      }
       <Router>
-        <Sidebar />
+        {authUser?.data?.user && <Sidebar />}
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/notifications" element={<NotificationPage />} />
-          <Route path="/profile/:username" element={<ProfilePage />} />
+          <Route
+            path="/"
+            element={
+              authUser?.data?.user ? <HomePage /> : <Navigate to="/login" />
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              !authUser?.data?.user ? <LoginPage /> : <Navigate to="/" />
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              !authUser?.data?.user ? <SignupPage /> : <Navigate to="/" />
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              authUser?.data?.user ? (
+                <NotificationPage />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          <Route
+            path="/profile/:username"
+            element={
+              authUser?.data?.user ? <ProfilePage /> : <Navigate to="/login" />
+            }
+          />
         </Routes>
-        <RightPanel />
+        {authUser?.data?.user && <RightPanel />}
+        <Toaster />
       </Router>
     </main>
   );

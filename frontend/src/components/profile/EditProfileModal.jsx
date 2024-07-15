@@ -1,4 +1,7 @@
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
+import toast from "react-hot-toast";
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 const EditProfileModal = () => {
   const [formData, setFormData] = useState({
@@ -10,10 +13,26 @@ const EditProfileModal = () => {
     newPassword: "",
     currentPassword: "",
   });
-
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
+
+  const { mutate, isError, error, isPending } = useMutation({
+    mutationFn: async (formData) => {
+      const response = await fetch(BASE_URL + "/api/users/update", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+    },
+    onSuccess: () => {},
+  });
 
   return (
     <>

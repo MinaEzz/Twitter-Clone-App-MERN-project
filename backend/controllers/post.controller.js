@@ -277,6 +277,7 @@ const getPostsByUserId = async (req, res, next) => {
   }
 };
 
+// NOT Working Well
 const getFollowingPosts = async (req, res, next) => {
   const userId = req.user._id;
   try {
