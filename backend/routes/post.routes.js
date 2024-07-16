@@ -14,12 +14,12 @@ const {
 } = require("../controllers/post.controller");
 
 router.use(protectedRoute);
-router.route("/").get(getAllPosts);
-router.route("/:userId").get(getPostsByUserId);
-router.route("/likes/:userId").get(getLikedPosts);
-router.route("/following").get(getFollowingPosts);
 router.route("/create").post(createPost);
+router.route("/").get(getAllPosts);
+router.route("/following").get(getFollowingPosts);
+router.route("/:userId").get(getPostsByUserId);
 router.route("/:postId").delete(deletePost).patch(updatePost);
+router.route("/likes/:userId").get(getLikedPosts);
 router.route("/comment/:postId").post(commentPost);
 router.route("/like/:postId").post(likePost);
 

@@ -5,19 +5,50 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import LoadingSpinner from "./LoadingSpinner";
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
+  const { data: authUser } = useQuery({ queryKey: ["authUser"] });
   const postOwner = post.user;
+  const isMyPost = authUser.data.user._id === post.user._id;
+
   const isLiked = false;
-
-  const isMyPost = true;
-
   const formattedDate = "1h";
-
   const isCommenting = false;
 
-  const handleDeletePost = () => {};
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending, isError, error } = useMutation({
+    mutationFn: async () => {
+      try {
+        const response = await fetch(BASE_URL + "/api/posts/" + post._id, {
+          method: "DELETE",
+          credentials: "include",
+        });
+        const responseData = await response.json();
+        if (!response.ok) {
+          console.log(responseData);
+          throw new Error(responseData.message || "Something Went Wrong.");
+        }
+        console.log(responseData);
+        return responseData;
+      } catch (error) {
+        throw new Error(error.message || "Something Went Wrong.");
+      }
+    },
+    onSuccess: () => {
+      toast.success("Post Deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
+
+  const handleDeletePost = () => {
+    mutate();
+  };
 
   const handlePostComment = (e) => {
     e.preventDefault();
@@ -50,10 +81,14 @@ const Post = ({ post }) => {
             </span>
             {isMyPost && (
               <span className="flex justify-end flex-1">
-                <FaTrash
-                  className="cursor-pointer hover:text-red-500"
-                  onClick={handleDeletePost}
-                />
+                {isPending ? (
+                  <LoadingSpinner size="sm" />
+                ) : (
+                  <FaTrash
+                    className="cursor-pointer hover:text-red-500"
+                    onClick={handleDeletePost}
+                  />
+                )}
               </span>
             )}
           </div>
