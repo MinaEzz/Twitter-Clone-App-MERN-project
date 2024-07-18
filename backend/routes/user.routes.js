@@ -9,9 +9,9 @@ const {
 } = require("../controllers/user.controller");
 
 router.use(protectedRoute);
-router.route("/profile/:username").get(getUserProfile); // DONE
-router.route("/follow/:id").post(followUser); // DONE
-router.route("/suggested").get(getSuggestedUsers); // DONE
-router.route("/update").patch(updateUser); // DONE
+router.route("/profile/:username").get(getUserProfile);
+router.route("/follow/:id").post(followUser);
+router.route("/suggested").get(getSuggestedUsers);
+router.route("/update").patch(updateUser);
 
 module.exports = router;

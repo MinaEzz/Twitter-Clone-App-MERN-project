@@ -2,23 +2,56 @@ import { CiImageOn } from "react-icons/ci";
 import { BsEmojiSmileFill } from "react-icons/bs";
 import { useRef, useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 const CreatePost = () => {
   const [text, setText] = useState("");
   const [img, setImg] = useState(null);
-
   const imgRef = useRef(null);
+  const { data: authUser } = useQuery({ queryKey: ["authUser"] });
+  const queryClient = useQueryClient();
 
-  const isPending = false;
-  const isError = false;
-
-  const data = {
-    profileImg: "/avatars/boy1.png",
-  };
+  const {
+    mutate: createPost,
+    isPending,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: async ({ text, img }) => {
+      try {
+        const formData = new FormData();
+        formData.append("text", text);
+        if (img) {
+          formData.append("img", img);
+        }
+        const response = await fetch(BASE_URL + "/api/posts/create", {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        });
+        const responseData = await response.json();
+        if (!response.ok) {
+          throw new Error(responseData.message || "Something Went Wrong.");
+        }
+        console.log(responseData);
+        return responseData;
+      } catch (error) {
+        throw new Error(error.message || "Something Went Wrong.");
+      }
+    },
+    onSuccess: () => {
+      setText("");
+      setImg(null);
+      toast.success("Post Created Successfully"),
+        queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("Post created successfully");
+    createPost({ text, img });
   };
 
   const handleImgChange = (e) => {
@@ -36,10 +69,14 @@ const CreatePost = () => {
     <div className="flex p-4 items-start gap-4 border-b border-gray-700">
       <div className="avatar">
         <div className="w-8 rounded-full">
-          <img src={data.profileImg || "/avatar-placeholder.png"} />
+          <img src={authUser?.data?.profileImg || "/avatar-placeholder.png"} />
         </div>
       </div>
-      <form className="flex flex-col gap-2 w-full" onSubmit={handleSubmit}>
+      <form
+        className="flex flex-col gap-2 w-full"
+        onSubmit={handleSubmit}
+        encType="multipart/form-data"
+      >
         <textarea
           className="textarea w-full p-0 text-lg resize-none border-none focus:outline-none  border-gray-800"
           placeholder="What is happening?!"
@@ -77,11 +114,18 @@ const CreatePost = () => {
             onChange={handleImgChange}
             accept="image/*"
           />
-          <button className="btn btn-primary rounded-full btn-sm text-white px-4">
+          <button
+            className="btn btn-primary rounded-full btn-sm text-white px-4"
+            type="submit"
+          >
             {isPending ? "Posting..." : "Post"}
           </button>
         </div>
-        {isError && <div className="text-red-500">Something went wrong</div>}
+        {isError && (
+          <div className="text-red-500">
+            {error.message || "Something went wrong"}
+          </div>
+        )}
       </form>
     </div>
   );

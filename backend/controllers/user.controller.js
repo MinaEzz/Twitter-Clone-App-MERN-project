@@ -2,7 +2,6 @@ const User = require("../models/user.model");
 const Notification = require("../models/notification.model");
 const { SUCCESS, ERROR, FAIL } = require("../utils/httpStatusText");
 const bcrypt = require("bcrypt");
-const { v2: cloudinary } = require("cloudinary");
 
 const getUserProfile = async (req, res, next) => {
   const { username } = req.params;
@@ -164,28 +163,13 @@ const updateUser = async (req, res, next) => {
       const hashNewPassword = await bcrypt.hash(newPassword, 12);
       user.password = hashNewPassword;
     }
-
-    if (profileImg) {
-      // OPTIMIZE: we need to delete the old profile image before adding the new one
-      //https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg
-      if (user.profileImg) {
-        await cloudinary.uploader.destroy(
-          user.profileImg.split("/").pop().split(".")[0]
-        );
+    if (req.files) {
+      if (req.files.profileImg) {
+        user.profileImg = req.files.profileImg[0].filename;
       }
-      const uploadResult = await cloudinary.uploader.upload(profileImg);
-      profileImg = uploadResult.secure_url;
-    }
-    if (coverImg) {
-      // OPTIMIZE: we need to delete the old cover image before adding the new one
-      if (user.coverImg) {
-        await cloudinary.uploader.destroy(
-          user.coverImg.split("/").pop().split(".")[0]
-        );
+      if (req.files.coverImg) {
+        user.coverImg = req.files.coverImg[0].filename;
       }
-
-      const uploadResult = await cloudinary.uploader.upload(coverImg);
-      coverImg = uploadResult.secure_url;
     }
     user.fullName = fullName || user.fullName;
     user.email = email || user.email;

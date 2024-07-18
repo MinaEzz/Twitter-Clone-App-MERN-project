@@ -2,7 +2,6 @@ const Post = require("../models/post.model");
 const User = require("../models/user.model");
 const Notification = require("../models/notification.model");
 const { SUCCESS, ERROR, FAIL } = require("../utils/httpStatusText");
-const { v2: cloudinary } = require("cloudinary");
 
 const createPost = async (req, res, next) => {
   const userId = req.user._id.toString();
@@ -24,11 +23,9 @@ const createPost = async (req, res, next) => {
       error.code = 400;
       return next(error);
     }
-    if (img) {
-      const uploadResult = await cloudinary.uploader.upload(img);
-      img = uploadResult.secure_url;
+    if (req.file) {
+      img = req.file.filename;
     }
-
     const newPost = new Post({
       user: userId,
       text,
@@ -162,48 +159,48 @@ const getFollowingPosts = async (req, res, next) => {
   }
 };
 
-const updatePost = async (req, res, next) => {
-  const { postId } = req.params;
-  const { text } = req.body;
-  let { img } = req.body;
+// const updatePost = async (req, res, next) => {
+//   const { postId } = req.params;
+//   const { text } = req.body;
+//   let { img } = req.body;
 
-  try {
-    const post = await Post.findById(postId);
-    if (!post) {
-      const error = new Error("Post doesn't exist");
-      error.status = FAIL;
-      error.code = 404;
-      return next(error);
-    }
-    if (post.user.toString() !== req.user._id.toString()) {
-      const error = new Error("Unauthorized to update post");
-      error.status = FAIL;
-      error.code = 401;
-      return next(error);
-    }
-    if (img) {
-      const uploadResult = await cloudinary.uploader.upload(img);
-      img = uploadResult.secure_url;
-      if (post.img) {
-        const imgId = post.img.split("/").pop().split(".")[1];
-        await cloudinary.uploader.destroy(imgId);
-      }
-    }
-    post.text = text;
-    post.img = img;
-    await post.save();
-    res.status(200).json({
-      status: SUCCESS,
-      data: { post },
-      message: "Post updated successfully",
-    });
-  } catch (err) {
-    const error = new Error(err.message);
-    error.status = ERROR;
-    error.code = 500;
-    return next(error);
-  }
-};
+//   try {
+//     const post = await Post.findById(postId);
+//     if (!post) {
+//       const error = new Error("Post doesn't exist");
+//       error.status = FAIL;
+//       error.code = 404;
+//       return next(error);
+//     }
+//     if (post.user.toString() !== req.user._id.toString()) {
+//       const error = new Error("Unauthorized to update post");
+//       error.status = FAIL;
+//       error.code = 401;
+//       return next(error);
+//     }
+//     if (img) {
+//       const uploadResult = await cloudinary.uploader.upload(img);
+//       img = uploadResult.secure_url;
+//       if (post.img) {
+//         const imgId = post.img.split("/").pop().split(".")[1];
+//         await cloudinary.uploader.destroy(imgId);
+//       }
+//     }
+//     post.text = text;
+//     post.img = img;
+//     await post.save();
+//     res.status(200).json({
+//       status: SUCCESS,
+//       data: { post },
+//       message: "Post updated successfully",
+//     });
+//   } catch (err) {
+//     const error = new Error(err.message);
+//     error.status = ERROR;
+//     error.code = 500;
+//     return next(error);
+//   }
+// };
 
 const deletePost = async (req, res, next) => {
   const { postId } = req.params;
@@ -220,10 +217,6 @@ const deletePost = async (req, res, next) => {
       error.status = FAIL;
       error.code = 401;
       return next(error);
-    }
-    if (post.img) {
-      const imgId = post.img.split("/").pop().split(".")[1];
-      await cloudinary.uploader.destroy(imgId);
     }
     await Post.findByIdAndDelete(postId);
     res.status(200).json({
@@ -258,7 +251,11 @@ const likePost = async (req, res, next) => {
       );
       res
         .status(200)
-        .json({ status: SUCCESS, data: null, message: "Unlike successfully" });
+        .json({
+          status: SUCCESS,
+          data: { post },
+          message: "Unlike successfully",
+        });
     } else {
       await Post.updateOne({ _id: postId }, { $push: { likes: req.user._id } });
       await post.save();
@@ -274,7 +271,11 @@ const likePost = async (req, res, next) => {
       await newNotification.save();
       res
         .status(200)
-        .json({ status: SUCCESS, data: null, message: "Like successfully" });
+        .json({
+          status: SUCCESS,
+          data: { post },
+          message: "Like successfully",
+        });
     }
   } catch (err) {
     const error = new Error(err.message);
@@ -363,7 +364,6 @@ const getLikedPosts = async (req, res, next) => {
 module.exports = {
   createPost,
   deletePost,
-  updatePost,
   likePost,
   commentPost,
   getAllPosts,
