@@ -5,7 +5,7 @@ import XSvg from "../../../components/svgs/X";
 import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+import loginMutation from "../../../mutations/loginMutation";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -22,29 +22,13 @@ const LoginPage = () => {
 
   const queryClient = useQueryClient();
 
-  const { mutate, isError, error, isPending } = useMutation({
-    mutationFn: async ({ username, password }) => {
-      try {
-        const response = await fetch(BASE_URL + "/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ username, password }),
-        });
-        const responseData = await response.json();
-        if (!response.ok) {
-          console.log(responseData);
-          throw new Error(responseData.message || "Something went wrong");
-        }
-        console.log(responseData);
-        return responseData;
-      } catch (error) {
-        console.log(error.message || "Something Went Wrong.");
-        throw new Error(error.message || "Something Went Wrong.");
-      }
-    },
+  const {
+    mutate: login,
+    isError,
+    error,
+    isPending,
+  } = useMutation({
+    mutationFn: loginMutation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
     },
@@ -53,7 +37,7 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    mutate(formData);
+    login(formData);
   };
 
   return (

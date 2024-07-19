@@ -6,10 +6,12 @@ import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import deletePostMutation from "../../mutations/post/deletePostMutation";
 import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date";
-const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+import commentPostMutation from "../../mutations/post/commentPostMutation";
+import likePostMutation from "../../mutations/post/likePostMutation";
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
@@ -21,57 +23,18 @@ const Post = ({ post }) => {
   const queryClient = useQueryClient();
 
   const { mutate: deletePost, isPending: isDeleting } = useMutation({
-    mutationFn: async () => {
-      try {
-        const response = await fetch(BASE_URL + "/api/posts/" + post._id, {
-          method: "DELETE",
-          credentials: "include",
-        });
-        const responseData = await response.json();
-        if (!response.ok) {
-          console.log(responseData);
-          throw new Error(responseData.message || "Something Went Wrong.");
-        }
-        console.log(responseData);
-        return responseData;
-      } catch (error) {
-        throw new Error(error.message || "Something Went Wrong.");
-      }
-    },
+    mutationFn: deletePostMutation,
     onSuccess: () => {
       toast.success("Post Deleted successfully");
       queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
   });
   const handleDeletePost = () => {
-    deletePost();
+    deletePost({ postId: post._id });
   };
 
   const { mutate: commentPost, isPending: isCommenting } = useMutation({
-    mutationFn: async () => {
-      try {
-        const response = await fetch(
-          BASE_URL + "/api/posts/comment/" + post._id,
-          {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ text: comment }),
-          }
-        );
-        const responseData = await response.json();
-        if (!response.ok) {
-          console.log(responseData);
-          throw new Error(responseData.message || "Something Went Wrong.");
-        }
-        console.log(responseData);
-        return responseData;
-      } catch (error) {
-        throw new Error(error.message || "Something Went Wrong.");
-      }
-    },
+    mutationFn: commentPostMutation,
     onSuccess: (responseData) => {
       queryClient.setQueryData(["posts"], (oldData) => {
         const updatedPosts = oldData.data.posts.map((p) => {
@@ -97,27 +60,11 @@ const Post = ({ post }) => {
   const handlePostComment = (e) => {
     e.preventDefault();
     if (isCommenting) return;
-    commentPost();
+    commentPost({ postId: post._id, comment });
   };
 
   const { mutate: likePost, isPending: isLiking } = useMutation({
-    mutationFn: async () => {
-      try {
-        const response = await fetch(BASE_URL + "/api/posts/like/" + post._id, {
-          method: "POST",
-          credentials: "include",
-        });
-        const responseData = await response.json();
-        if (!response.ok) {
-          console.log(responseData);
-          throw new Error(responseData.message || "Something Went Wrong.");
-        }
-        console.log(responseData);
-        return responseData;
-      } catch (error) {
-        throw new Error(error.message || "Something went wrong.");
-      }
-    },
+    mutationFn: likePostMutation,
     onSuccess: (responseData) => {
       queryClient.setQueryData(["posts"], (oldData) => {
         const updatedPosts = oldData.data.posts.map((p) => {
@@ -139,10 +86,9 @@ const Post = ({ post }) => {
       toast.error(error.message || "Something went wrong");
     },
   });
-
   const handleLikePost = () => {
     if (isLiking) return;
-    likePost();
+    likePost({ postId: post._id });
   };
 
   return (

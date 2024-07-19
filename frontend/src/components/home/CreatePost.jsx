@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+import createPostMutation from "../../mutations/post/createPostMutation";
 
 const CreatePost = () => {
   const [text, setText] = useState("");
@@ -19,28 +19,7 @@ const CreatePost = () => {
     isError,
     error,
   } = useMutation({
-    mutationFn: async ({ text, img }) => {
-      try {
-        const formData = new FormData();
-        formData.append("text", text);
-        if (img) {
-          formData.append("img", img);
-        }
-        const response = await fetch(BASE_URL + "/api/posts/create", {
-          method: "POST",
-          credentials: "include",
-          body: formData,
-        });
-        const responseData = await response.json();
-        if (!response.ok) {
-          throw new Error(responseData.message || "Something Went Wrong.");
-        }
-        console.log(responseData);
-        return responseData;
-      } catch (error) {
-        throw new Error(error.message || "Something Went Wrong.");
-      }
-    },
+    mutationFn: createPostMutation,
     onSuccess: () => {
       setText("");
       setImg(null);
@@ -48,7 +27,6 @@ const CreatePost = () => {
         queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
   });
-
   const handleSubmit = (e) => {
     e.preventDefault();
     createPost({ text, img });

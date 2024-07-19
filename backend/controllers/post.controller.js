@@ -242,25 +242,26 @@ const likePost = async (req, res, next) => {
       error.code = 404;
       return next(error);
     }
-    const updateAction = post.likes.includes(req.user._id.toString())
+    const isLiked = post.likes.includes(req.user._id.toString());
+    const updateAction = isLiked
       ? { $pull: { likes: req.user._id } }
       : { $push: { likes: req.user._id } };
     post = await Post.findByIdAndUpdate(postId, updateAction, { new: true });
 
-    const userAction = post.likes.includes(req.user._id.toString())
+    const userAction = isLiked
       ? { $pull: { likedPosts: postId } }
       : { $push: { likedPosts: postId } };
     await User.updateOne({ _id: req.user._id }, userAction);
 
-    const newNotification = new Notification({
-      type: "like",
-      from: req.user._id,
-      to: post.user,
-    });
-    await newNotification.save();
-    const message = post.likes.includes(req.user._id.toString())
-      ? "Unlike successfully"
-      : "Like successfully";
+    if (!isLiked) {
+      const newNotification = new Notification({
+        type: "like",
+        from: req.user._id,
+        to: post.user,
+      });
+      await newNotification.save();
+    }
+    const message = isLiked ? "Unlike successfully" : "Like successfully";
     res.status(200).json({
       status: SUCCESS,
       data: { post },

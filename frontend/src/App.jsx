@@ -20,14 +20,7 @@ import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "./components/shared/LoadingSpinner";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
-// TODO: add commit 1- using multer instead of cloudinary 3- create and delete post added
-// TODO: add commit 3- suggested users fetched
-// REVIEW useFollow hook gonna be used in the right pannel also in the profile page
-// REVIEW the using of the useFollow hook in the right pannel also in the profile page
-// TODO: add commit 3- useFollow hook is added
-// TODO: add commit 3- like post is added and post
-// TODO: profile and notification pages
-// REVIEW: modify the file uplad
+
 const App = () => {
   const { data: authUser, isLoading } = useQuery({
     queryKey: ["authUser"],
