@@ -15,7 +15,8 @@ const RightPanel = () => {
           credentials: "include",
         });
         const responseData = await response.json();
-        if (!responseData.ok) {
+        if (!response.ok) {
+          console.log(responseData);
           throw new Error(responseData.message || "Something went wrong.");
         }
         console.log(responseData);
@@ -24,6 +25,7 @@ const RightPanel = () => {
         throw new Error(error.message || "Something Went Wrong.");
       }
     },
+    retry: false,
   });
   const { follow, isPending } = useFollow();
 

@@ -235,48 +235,37 @@ const deletePost = async (req, res, next) => {
 const likePost = async (req, res, next) => {
   const { postId } = req.params;
   try {
-    const post = await Post.findById(postId);
+    let post = await Post.findById(postId);
     if (!post) {
       const error = new Error("Post doesn't exist");
       error.status = FAIL;
       error.code = 404;
       return next(error);
     }
-    if (post.likes.includes(req.user._id.toString())) {
-      await Post.updateOne({ _id: postId }, { $pull: { likes: req.user._id } });
-      await post.save();
-      await User.updateOne(
-        { _id: req.user._id },
-        { $pull: { likedPosts: postId } }
-      );
-      res
-        .status(200)
-        .json({
-          status: SUCCESS,
-          data: { post },
-          message: "Unlike successfully",
-        });
-    } else {
-      await Post.updateOne({ _id: postId }, { $push: { likes: req.user._id } });
-      await post.save();
-      await User.updateOne(
-        { _id: req.user._id },
-        { $push: { likedPosts: postId } }
-      );
-      const newNotification = new Notification({
-        type: "like",
-        from: req.user._id,
-        to: post.user,
-      });
-      await newNotification.save();
-      res
-        .status(200)
-        .json({
-          status: SUCCESS,
-          data: { post },
-          message: "Like successfully",
-        });
-    }
+    const updateAction = post.likes.includes(req.user._id.toString())
+      ? { $pull: { likes: req.user._id } }
+      : { $push: { likes: req.user._id } };
+    post = await Post.findByIdAndUpdate(postId, updateAction, { new: true });
+
+    const userAction = post.likes.includes(req.user._id.toString())
+      ? { $pull: { likedPosts: postId } }
+      : { $push: { likedPosts: postId } };
+    await User.updateOne({ _id: req.user._id }, userAction);
+
+    const newNotification = new Notification({
+      type: "like",
+      from: req.user._id,
+      to: post.user,
+    });
+    await newNotification.save();
+    const message = post.likes.includes(req.user._id.toString())
+      ? "Unlike successfully"
+      : "Like successfully";
+    res.status(200).json({
+      status: SUCCESS,
+      data: { post },
+      message,
+    });
   } catch (err) {
     const error = new Error(err.message);
     error.status = ERROR;
@@ -289,7 +278,10 @@ const commentPost = async (req, res, next) => {
   const { postId } = req.params;
   const { text } = req.body;
   try {
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate(
+      "comments.user",
+      "-password"
+    );
     if (!post) {
       const error = new Error("Post doesn't exist");
       error.status = FAIL;

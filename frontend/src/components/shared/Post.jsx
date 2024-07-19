@@ -51,12 +51,14 @@ const Post = ({ post }) => {
     mutationFn: async () => {
       try {
         const response = await fetch(
-          BASE_URL + "/api/posts/comment" + post._id,
+          BASE_URL + "/api/posts/comment/" + post._id,
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: JSON.stringify(comment),
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ text: comment }),
           }
         );
         const responseData = await response.json();
@@ -71,20 +73,22 @@ const Post = ({ post }) => {
       }
     },
     onSuccess: (responseData) => {
-      toast.success("Post commented Successfully");
-      setComment("");
-      // FIXME: this is not the best UX
-      // queryClient.invalidateQueries({ queryKey: ["posts"] });
-      // update tha cach directly for the post
-      // TODO: test this and if it works properly delete the toast
       queryClient.setQueryData(["posts"], (oldData) => {
-        return oldData.map((p) => {
+        const updatedPosts = oldData.data.posts.map((p) => {
           if (p._id === post._id) {
-            return { ...p, likes: responseData.data.post.comments };
+            return { ...p, comments: responseData.data.post.comments };
           }
           return p;
         });
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            posts: updatedPosts,
+          },
+        };
       });
+      setComment("");
     },
     onError: (error) => {
       toast.error(error.message || "Something went wrong");
@@ -99,15 +103,13 @@ const Post = ({ post }) => {
   const { mutate: likePost, isPending: isLiking } = useMutation({
     mutationFn: async () => {
       try {
-        const response = await fetch(
-          BASE_URL + "/api/posts/comment/" + post._id,
-          {
-            method: "POST",
-            credentials: "include",
-          }
-        );
+        const response = await fetch(BASE_URL + "/api/posts/like/" + post._id, {
+          method: "POST",
+          credentials: "include",
+        });
         const responseData = await response.json();
         if (!response.ok) {
+          console.log(responseData);
           throw new Error(responseData.message || "Something Went Wrong.");
         }
         console.log(responseData);
@@ -117,18 +119,20 @@ const Post = ({ post }) => {
       }
     },
     onSuccess: (responseData) => {
-      toast.success("Post Liked Successfully");
-      // FIXME: this is not the best UX
-      // queryClient.invalidateQueries({ queryKey: ["posts"] });
-      // update tha cach directly for the post
-      // TODO: test this and if it works properly delete the toast
       queryClient.setQueryData(["posts"], (oldData) => {
-        return oldData.map((p) => {
+        const updatedPosts = oldData.data.posts.map((p) => {
           if (p._id === post._id) {
             return { ...p, likes: responseData.data.post.likes };
           }
           return p;
         });
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            posts: updatedPosts,
+          },
+        };
       });
     },
     onError: (error) => {

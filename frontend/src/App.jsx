@@ -26,6 +26,8 @@ const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 // REVIEW the using of the useFollow hook in the right pannel also in the profile page
 // TODO: add commit 3- useFollow hook is added
 // TODO: add commit 3- like post is added and post
+// TODO: profile and notification pages
+// REVIEW: modify the file uplad
 const App = () => {
   const { data: authUser, isLoading } = useQuery({
     queryKey: ["authUser"],
