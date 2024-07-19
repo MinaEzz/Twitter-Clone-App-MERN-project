@@ -15,7 +15,7 @@ const getUserProfile = async (req, res, next) => {
     }
     res.status(200).json({
       status: SUCCESS,
-      data: user,
+      data: { user },
       message: "User profile fetched successfully",
     });
   } catch (err) {

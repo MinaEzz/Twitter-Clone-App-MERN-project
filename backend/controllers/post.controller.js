@@ -337,13 +337,13 @@ const getLikedPosts = async (req, res, next) => {
     if (likedPosts.length === 0) {
       return res.status(200).json({
         status: SUCCESS,
-        data: { likedPosts: [] },
+        data: { posts: [] },
         message: "no posts in the database",
       });
     }
     res.status(200).json({
       status: SUCCESS,
-      data: { likedPosts },
+      data: { posts: likedPosts },
       message: "Liked posts fetched successfully",
     });
   } catch (err) {
