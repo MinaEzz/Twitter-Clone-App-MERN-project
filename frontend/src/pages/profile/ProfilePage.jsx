@@ -11,21 +11,28 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import UserProfileQuery from "../../queries/UserProfileQuery";
 import { formatMemberSinceDate } from "../../utils/date";
+import useFollow from "../../hooks/useFollow";
+import LoadingSpinner from "../../components/shared/LoadingSpinner";
+import updateProfileImgMutation from "../../mutations/profile/updateProfileImgMutation";
+import toast from "react-hot-toast";
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 const ProfilePage = () => {
   const { username } = useParams();
-  const [coverImg, setCoverImg] = useState(null);
   const [profileImg, setProfileImg] = useState(null);
+  const [coverImg, setCoverImg] = useState(null);
+  const [profileImgPreview, setProfileImgPreview] = useState(null);
+  const [coverImgPreview, setCoverImgPreview] = useState(null);
   const [feedType, setFeedType] = useState("posts");
-
   const coverImgRef = useRef(null);
   const profileImgRef = useRef(null);
 
-  const isMyProfile = true;
-
+  const { data: authUser } = useQuery({ queryKey: ["authUser"] });
+  const queryClient = useQueryClient();
+  const { follow, isPending } = useFollow();
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ["userProfile"],
     queryFn: () => UserProfileQuery({ username }),
@@ -37,14 +44,37 @@ const ProfilePage = () => {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        state === "coverImg" && setCoverImg(reader.result);
-        state === "profileImg" && setProfileImg(reader.result);
+        state === "coverImg" && setCoverImgPreview(reader.result);
+        state === "profileImg" && setProfileImgPreview(reader.result);
       };
       reader.readAsDataURL(file);
+      if (state === "coverImg") setCoverImg(file);
+      if (state === "profileImg") setProfileImg(file);
     }
   };
 
+  const { mutate: updateProfileImg, isPending: isUpdatingProfileImg } =
+    useMutation({
+      mutationFn: () => updateProfileImgMutation({ profileImg, coverImg }),
+      onSuccess: (responseData) => {
+        toast.success(
+          responseData.message || "Profile has been updated successfully."
+        );
+        Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+          queryClient.invalidateQueries({ queryKey: ["userProfile"] }),
+        ]);
+      },
+      onError: (error) => {
+        toast.error(error.message || "Something Went Wrong.");
+      },
+    });
+
   const memberSinceDate = formatMemberSinceDate(data?.data?.user?.createdAt);
+  const isMyProfile = authUser?.data?.user?.username === username;
+  const isFollowed = authUser?.data?.user?.following?.includes(
+    data?.data?.user?._id
+  );
 
   useEffect(() => {
     refetch();
@@ -77,7 +107,13 @@ const ProfilePage = () => {
               {/* COVER IMG */}
               <div className="relative group/cover">
                 <img
-                  src={coverImg || data?.data?.user?.coverImg || "/cover.png"}
+                  src={
+                    coverImgPreview ||
+                    BASE_URL +
+                      "/uploads/images/" +
+                      data?.data?.user?.coverImg ||
+                    "/cover.png"
+                  }
                   className="h-52 w-full object-cover"
                   alt="cover image"
                 />
@@ -109,8 +145,10 @@ const ProfilePage = () => {
                   <div className="w-32 rounded-full relative group/avatar">
                     <img
                       src={
-                        profileImg ||
-                        data?.data?.user?.profileImg ||
+                        profileImgPreview ||
+                        BASE_URL +
+                          "/uploads/images/" +
+                          data?.data?.user?.profileImg ||
                         "/avatar-placeholder.png"
                       }
                     />
@@ -130,17 +168,19 @@ const ProfilePage = () => {
                 {!isMyProfile && (
                   <button
                     className="btn btn-outline rounded-full btn-sm"
-                    onClick={() => alert("Followed successfully")}
+                    onClick={() => follow(data?.data?.user?._id)}
                   >
-                    Follow
+                    {isPending && <LoadingSpinner size="sm" />}
+                    {!isPending && isFollowed && "unfollow"}
+                    {!isPending && !isFollowed && "follow"}
                   </button>
                 )}
                 {(coverImg || profileImg) && (
                   <button
                     className="btn btn-primary rounded-full btn-sm text-white px-4 ml-2"
-                    onClick={() => alert("Profile updated successfully")}
+                    onClick={() => updateProfileImg()}
                   >
-                    Update
+                    {isUpdatingProfileImg ? "Updating..." : "Update"}
                   </button>
                 )}
               </div>

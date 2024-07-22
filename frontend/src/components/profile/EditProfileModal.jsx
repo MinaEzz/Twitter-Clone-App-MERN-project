@@ -22,16 +22,7 @@ const EditProfileModal = () => {
   };
 
   const { mutate, isError, error, isPending } = useMutation({
-    mutationFn: async (formData) => {
-      const response = await fetch(BASE_URL + "/api/users/update", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-    },
-    onSuccess: () => {},
+    mutationFn: "",
   });
 
   return (

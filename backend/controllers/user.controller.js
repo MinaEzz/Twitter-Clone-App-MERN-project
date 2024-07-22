@@ -123,7 +123,7 @@ const updateUser = async (req, res, next) => {
   const userId = req.user._id;
   const { fullName, email, username, currentPassword, newPassword, bio, link } =
     req.body;
-  let { profileImg, coverImg } = req.body;
+  let profileImg, coverImg;
   try {
     let user = await User.findById(userId);
     if (!user) {
@@ -165,10 +165,10 @@ const updateUser = async (req, res, next) => {
     }
     if (req.files) {
       if (req.files.profileImg) {
-        user.profileImg = req.files.profileImg[0].filename;
+        profileImg = req.files.profileImg[0].filename;
       }
       if (req.files.coverImg) {
-        user.coverImg = req.files.coverImg[0].filename;
+        coverImg = req.files.coverImg[0].filename;
       }
     }
     user.fullName = fullName || user.fullName;

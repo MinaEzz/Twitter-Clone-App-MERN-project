@@ -9,6 +9,7 @@ import createPostMutation from "../../mutations/post/createPostMutation";
 const CreatePost = () => {
   const [text, setText] = useState("");
   const [img, setImg] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
   const imgRef = useRef(null);
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
   const queryClient = useQueryClient();
@@ -21,26 +22,29 @@ const CreatePost = () => {
   } = useMutation({
     mutationFn: createPostMutation,
     onSuccess: () => {
+      setPreviewImage(null);
       setText("");
       setImg(null);
       toast.success("Post Created Successfully"),
         queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
   });
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    createPost({ text, img });
-  };
 
   const handleImgChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setImg(reader.result);
+        setPreviewImage(reader.result);
       };
       reader.readAsDataURL(file);
+      setImg(file);
     }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    createPost({ text, img });
   };
 
   return (
@@ -61,17 +65,17 @@ const CreatePost = () => {
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
-        {img && (
+        {previewImage && (
           <div className="relative w-72 mx-auto">
             <IoCloseSharp
               className="absolute top-0 right-0 text-white bg-gray-800 rounded-full w-5 h-5 cursor-pointer"
               onClick={() => {
-                setImg(null);
+                setPreviewImage(null);
                 imgRef.current.value = null;
               }}
             />
             <img
-              src={img}
+              src={previewImage}
               className="w-full mx-auto h-72 object-contain rounded"
             />
           </div>

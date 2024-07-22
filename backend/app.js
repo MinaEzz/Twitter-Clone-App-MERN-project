@@ -5,6 +5,7 @@ const port = process.env.PORT || 8000;
 const connectMongoDB = require("./db/connectMongoDB");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const path = require("path");
 
 const { ERROR } = require("./utils/httpStatusText");
 
@@ -24,6 +25,7 @@ app.use(
     credentials: true,
   })
 );
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ROUTES
 app.use("/api/auth", authRouter);

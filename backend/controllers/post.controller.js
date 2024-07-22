@@ -6,7 +6,7 @@ const { SUCCESS, ERROR, FAIL } = require("../utils/httpStatusText");
 const createPost = async (req, res, next) => {
   const userId = req.user._id.toString();
   const { text } = req.body;
-  let { img } = req.body;
+  let img;
   try {
     const user = await User.findById(userId);
     if (!user) {
@@ -15,7 +15,7 @@ const createPost = async (req, res, next) => {
       error.code = 404;
       return next(error);
     }
-    if (!text && !img) {
+    if (!text && !req.file) {
       const error = new Error(
         "Post can't be empty, post must have text or image."
       );
