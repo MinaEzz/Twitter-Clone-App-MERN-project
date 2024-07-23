@@ -100,7 +100,15 @@ const Post = ({ post }) => {
             to={`/profile/${postOwner.username}`}
             className="w-8 rounded-full overflow-hidden"
           >
-            <img src={postOwner.profileImg || "/avatar-placeholder.png"} />
+            <img
+              src={
+                !postOwner?.profileImg ||
+                postOwner.profileImg === "null" ||
+                postOwner.profileImg === ""
+                  ? "/avatar-placeholder.png"
+                  : BASE_URL + "/uploads/images/" + postOwner.profileImg
+              }
+            />
           </Link>
         </div>
         <div className="flex flex-col flex-1">
@@ -172,8 +180,13 @@ const Post = ({ post }) => {
                           <div className="w-8 rounded-full">
                             <img
                               src={
-                                comment.user.profileImg ||
-                                "/avatar-placeholder.png"
+                                !comment?.user?.profileImg ||
+                                comment.user.profileImg === "null" ||
+                                comment.user.profileImg === ""
+                                  ? "/avatar-placeholder.png"
+                                  : BASE_URL +
+                                    "/uploads/images/" +
+                                    comment.user.profileImg
                               }
                             />
                           </div>

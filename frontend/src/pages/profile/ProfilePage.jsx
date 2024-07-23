@@ -64,6 +64,8 @@ const ProfilePage = () => {
           queryClient.invalidateQueries({ queryKey: ["authUser"] }),
           queryClient.invalidateQueries({ queryKey: ["userProfile"] }),
         ]);
+        setCoverImg(null);
+        setProfileImg(null);
       },
       onError: (error) => {
         toast.error(error.message || "Something Went Wrong.");
@@ -108,11 +110,13 @@ const ProfilePage = () => {
               <div className="relative group/cover">
                 <img
                   src={
-                    coverImgPreview ||
-                    BASE_URL +
-                      "/uploads/images/" +
-                      data?.data?.user?.coverImg ||
-                    "/cover.png"
+                    !data?.data?.user?.coverImg ||
+                    data?.data?.user?.coverImg === "null" ||
+                    data?.data?.user?.coverImg === ""
+                      ? coverImgPreview || "/cover.png"
+                      : BASE_URL +
+                        "/uploads/images/" +
+                        data?.data?.user?.coverImg
                   }
                   className="h-52 w-full object-cover"
                   alt="cover image"
@@ -145,11 +149,13 @@ const ProfilePage = () => {
                   <div className="w-32 rounded-full relative group/avatar">
                     <img
                       src={
-                        profileImgPreview ||
-                        BASE_URL +
-                          "/uploads/images/" +
-                          data?.data?.user?.profileImg ||
-                        "/avatar-placeholder.png"
+                        !data?.data?.user?.profileImg ||
+                        data?.data?.user?.profileImg === "null" ||
+                        data?.data?.user?.profileImg === ""
+                          ? profileImgPreview || "/avatar-placeholder.png"
+                          : BASE_URL +
+                            "/uploads/images/" +
+                            data?.data?.user?.profileImg
                       }
                     />
                     <div className="absolute top-5 right-3 p-1 bg-primary rounded-full group-hover/avatar:opacity-100 opacity-0 cursor-pointer">
@@ -164,7 +170,7 @@ const ProfilePage = () => {
                 </div>
               </div>
               <div className="flex justify-end px-4 mt-5">
-                {isMyProfile && <EditProfileModal />}
+                {isMyProfile && <EditProfileModal authUser={authUser} />}
                 {!isMyProfile && (
                   <button
                     className="btn btn-outline rounded-full btn-sm"
@@ -202,12 +208,12 @@ const ProfilePage = () => {
                       <>
                         <FaLink className="w-3 h-3 text-slate-500" />
                         <a
-                          href="https://youtube.com/@asaprogrammer_"
+                          href={data?.data?.user?.link}
                           target="_blank"
                           rel="noreferrer"
                           className="text-sm text-blue-500 hover:underline"
                         >
-                          youtube.com/@asaprogrammer_
+                          {data?.data?.user?.link}
                         </a>
                       </>
                     </div>

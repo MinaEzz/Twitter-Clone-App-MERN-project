@@ -1,9 +1,10 @@
-import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+import updateProfileMutation from "../../mutations/profile/updateProfileMutation";
 
-const EditProfileModal = () => {
+const EditProfileModal = ({ authUser }) => {
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     fullName: "",
     username: "",
@@ -21,9 +22,35 @@ const EditProfileModal = () => {
     });
   };
 
-  const { mutate, isError, error, isPending } = useMutation({
-    mutationFn: "",
+  const { mutate: updateProfile, isPending: isUpdatingProfile } = useMutation({
+    mutationFn: () => updateProfileMutation(formData),
+    onSuccess: (responseData) => {
+      toast.success(
+        responseData.message || "Profile has been updated successfully."
+      );
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+        queryClient.invalidateQueries({ queryKey: ["userProfile"] }),
+        queryClient.invalidateQueries({ queryKey: ["posts"] }),
+      ]);
+    },
+    onError: (error) =>
+      toast.error(error.message || "Failed to update profile"),
   });
+
+  useEffect(() => {
+    if (authUser) {
+      setFormData({
+        fullName: authUser.data.user.fullName,
+        username: authUser.data.user.username,
+        email: authUser.data.user.email,
+        bio: authUser.data.user.bio,
+        link: authUser.data.user.link,
+        newPassword: "",
+        currentPassword: "",
+      });
+    }
+  }, [authUser]);
 
   return (
     <>
@@ -42,7 +69,7 @@ const EditProfileModal = () => {
             className="flex flex-col gap-4"
             onSubmit={(e) => {
               e.preventDefault();
-              alert("Profile updated successfully");
+              updateProfile();
             }}
           >
             <div className="flex flex-wrap gap-2">
@@ -107,7 +134,7 @@ const EditProfileModal = () => {
               onChange={handleInputChange}
             />
             <button className="btn btn-primary rounded-full btn-sm text-white">
-              Update
+              {isUpdatingProfile ? "Updating..." : "Update"}
             </button>
           </form>
         </div>

@@ -5,6 +5,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import createPostMutation from "../../mutations/post/createPostMutation";
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 const CreatePost = () => {
   const [text, setText] = useState("");
@@ -51,7 +52,16 @@ const CreatePost = () => {
     <div className="flex p-4 items-start gap-4 border-b border-gray-700">
       <div className="avatar">
         <div className="w-8 rounded-full">
-          <img src={authUser?.data?.profileImg || "/avatar-placeholder.png"} />
+          <img
+            src={
+              !authUser?.data?.user?.profileImg ||
+              authUser?.data?.user?.profileImg === "null"
+                ? "/avatar-placeholder.png"
+                : BASE_URL +
+                  "/uploads/images/" +
+                  authUser?.data?.user?.profileImg
+            }
+          />
         </div>
       </div>
       <form
