@@ -16,7 +16,7 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 const fileUpload = multer({
-  limits: 500000,
+  limits: 5 * 1000 * 1000,
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, uploadDir);

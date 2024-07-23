@@ -5,8 +5,6 @@ import Posts from "../../components/shared/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
 import EditProfileModal from "../../components/profile/EditProfileModal";
 
-import { POSTS } from "../../utils/db/dummy";
-
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
@@ -101,9 +99,6 @@ const ProfilePage = () => {
                   <p className="font-bold text-lg">
                     {data?.data?.user?.fullName}
                   </p>
-                  <span className="text-sm text-slate-500">
-                    {POSTS?.length} posts
-                  </span>
                 </div>
               </div>
               {/* COVER IMG */}
