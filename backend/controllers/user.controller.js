@@ -165,10 +165,24 @@ const updateUser = async (req, res, next) => {
     }
     if (req.files) {
       if (req.files.profileImg) {
-        profileImg = req.files.profileImg[0].filename;
+        if (user.profileImg?.publicId) {
+          await cloudinary.uploader.destroy(user.profileImg.publicId);
+        }
+
+        user.profileImg = {
+          url: req.files.profileImg[0].path,
+          publicId: req.files.profileImg[0].filename,
+        };
       }
       if (req.files.coverImg) {
-        coverImg = req.files.coverImg[0].filename;
+        if (user.coverImg?.publicId) {
+          await cloudinary.uploader.destroy(user.coverImg.publicId);
+        }
+
+        user.coverImg = {
+          url: req.files.coverImg[0].path,
+          publicId: req.files.coverImg[0].filename,
+        };
       }
     }
     user.fullName = fullName || user.fullName;

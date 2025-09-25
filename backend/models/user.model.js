@@ -36,12 +36,14 @@ const userSchema = new mongoose.Schema(
       },
     ],
     profileImg: {
-      type: String,
-      default: "",
+      url: String,
+      publicId: String,
+      default: null,
     },
     coverImg: {
-      type: String,
-      default: "",
+      url: String,
+      publicId: String,
+      default: null,
     },
     bio: {
       type: String,

@@ -146,11 +146,9 @@ const ProfilePage = () => {
                       src={
                         !data?.data?.user?.profileImg ||
                         data?.data?.user?.profileImg === "null" ||
-                        data?.data?.user?.profileImg === ""
+                        data?.data?.user?.profileImg.url === ""
                           ? profileImgPreview || "/avatar-placeholder.png"
-                          : BASE_URL +
-                            "/uploads/images/" +
-                            data?.data?.user?.profileImg
+                          : data?.data?.user?.profileImg.url
                       }
                     />
                     <div className="absolute top-5 right-3 p-1 bg-primary rounded-full group-hover/avatar:opacity-100 opacity-0 cursor-pointer">

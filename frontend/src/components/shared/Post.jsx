@@ -102,11 +102,11 @@ const Post = ({ post }) => {
           >
             <img
               src={
-                !postOwner?.profileImg ||
+                !postOwner?.profileImg.url ||
                 postOwner.profileImg === "null" ||
-                postOwner.profileImg === ""
+                postOwner.profileImg.url === ""
                   ? "/avatar-placeholder.png"
-                  : BASE_URL + "/uploads/images/" + postOwner.profileImg
+                  : postOwner.profileImg.url
               }
             />
           </Link>
@@ -182,11 +182,9 @@ const Post = ({ post }) => {
                               src={
                                 !comment?.user?.profileImg ||
                                 comment.user.profileImg === "null" ||
-                                comment.user.profileImg === ""
+                                comment.user.profileImg.url === ""
                                   ? "/avatar-placeholder.png"
-                                  : BASE_URL +
-                                    "/uploads/images/" +
-                                    comment.user.profileImg
+                                  : comment.user.profileImg.url
                               }
                             />
                           </div>

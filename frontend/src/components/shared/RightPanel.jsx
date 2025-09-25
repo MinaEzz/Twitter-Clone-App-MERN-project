@@ -60,7 +60,7 @@ const RightPanel = () => {
                         src={
                           !user?.profileImg || user?.profileImg === "null"
                             ? "/avatar-placeholder.png"
-                            : BASE_URL + "/uploads/images/" + user?.profileImg
+                            : user?.profileImg.url
                         }
                       />
                     </div>

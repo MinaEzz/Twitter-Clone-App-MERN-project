@@ -54,12 +54,10 @@ const CreatePost = () => {
         <div className="w-8 rounded-full">
           <img
             src={
-              !authUser?.data?.user?.profileImg ||
+              !authUser?.data?.user?.profileImg.url ||
               authUser?.data?.user?.profileImg === "null"
                 ? "/avatar-placeholder.png"
-                : BASE_URL +
-                  "/uploads/images/" +
-                  authUser?.data?.user?.profileImg
+                : authUser?.data?.user?.profileImg.url
             }
           />
         </div>

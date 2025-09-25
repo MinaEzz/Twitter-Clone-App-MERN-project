@@ -24,7 +24,8 @@ const createPost = async (req, res, next) => {
       return next(error);
     }
     if (req.file) {
-      img = req.file.filename;
+      // img = req.file.filename;
+      img = req.file.path;
     }
     const newPost = new Post({
       user: userId,

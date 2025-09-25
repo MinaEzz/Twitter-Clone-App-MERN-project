@@ -70,11 +70,9 @@ const NotificationPage = () => {
                       src={
                         !notification?.from?.profileImg ||
                         notification.from.profileImg === "null" ||
-                        notification.from.profileImg === ""
+                        notification.from.profileImg.url === ""
                           ? "/avatar-placeholder.png"
-                          : BASE_URL +
-                            "/uploads/images/" +
-                            notification.from.profileImg
+                          :notification.from.profileImg.url
                       }
                     />
                   </div>

@@ -90,9 +90,7 @@ const Sidebar = () => {
                     !authUser?.data?.user?.profileImg ||
                     authUser?.data?.user?.profileImg === "null"
                       ? "/avatar-placeholder.png"
-                      : BASE_URL +
-                        "/uploads/images/" +
-                        authUser?.data?.user?.profileImg
+                      : authUser?.data?.user?.profileImg.url
                   }
                 />
               </div>
