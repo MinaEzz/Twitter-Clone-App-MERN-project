@@ -54,7 +54,7 @@ const CreatePost = () => {
           <img
             src={
               !authUser?.data?.user?.profileImg ||
-              authUser?.data?.user?.profileImg === ""
+              authUser?.data?.user?.profileImg.url === ""
                 ? "/avatar-placeholder.png"
                 : authUser?.data?.user?.profileImg.url
             }
