@@ -8,7 +8,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import NotificationQuery from "../../queries/NotificationsQuery";
 import deleteNotificationsMutation from "../../mutations/deleteNotificationsMutation";
 import toast from "react-hot-toast";
-const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 const NotificationPage = () => {
   const queryClient = useQueryClient();
@@ -69,10 +68,9 @@ const NotificationPage = () => {
                     <img
                       src={
                         !notification?.from?.profileImg ||
-                        notification.from.profileImg === "null" ||
                         notification.from.profileImg.url === ""
                           ? "/avatar-placeholder.png"
-                          :notification.from.profileImg.url
+                          : notification.from.profileImg.url
                       }
                     />
                   </div>

@@ -102,8 +102,7 @@ const Post = ({ post }) => {
           >
             <img
               src={
-                !postOwner?.profileImg.url ||
-                postOwner.profileImg === "null" ||
+                !postOwner?.profileImg ||
                 postOwner.profileImg.url === ""
                   ? "/avatar-placeholder.png"
                   : postOwner.profileImg.url
@@ -181,7 +180,6 @@ const Post = ({ post }) => {
                             <img
                               src={
                                 !comment?.user?.profileImg ||
-                                comment.user.profileImg === "null" ||
                                 comment.user.profileImg.url === ""
                                   ? "/avatar-placeholder.png"
                                   : comment.user.profileImg.url

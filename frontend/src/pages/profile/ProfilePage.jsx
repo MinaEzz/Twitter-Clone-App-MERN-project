@@ -16,7 +16,6 @@ import useFollow from "../../hooks/useFollow";
 import LoadingSpinner from "../../components/shared/LoadingSpinner";
 import updateProfileImgMutation from "../../mutations/profile/updateProfileImgMutation";
 import toast from "react-hot-toast";
-const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 const ProfilePage = () => {
   const { username } = useParams();
@@ -106,12 +105,9 @@ const ProfilePage = () => {
                 <img
                   src={
                     !data?.data?.user?.coverImg ||
-                    data?.data?.user?.coverImg === "null" ||
-                    data?.data?.user?.coverImg === ""
+                    data?.data?.user?.coverImg.url === ""
                       ? coverImgPreview || "/cover.png"
-                      : BASE_URL +
-                        "/uploads/images/" +
-                        data?.data?.user?.coverImg
+                      : data?.data?.user?.coverImg.url
                   }
                   className="h-52 w-full object-cover"
                   alt="cover image"
@@ -145,8 +141,7 @@ const ProfilePage = () => {
                     <img
                       src={
                         !data?.data?.user?.profileImg ||
-                        data?.data?.user?.profileImg === "null" ||
-                        data?.data?.user?.profileImg.url === ""
+                        data?.data?.user?.profileImg === ""
                           ? profileImgPreview || "/avatar-placeholder.png"
                           : data?.data?.user?.profileImg.url
                       }
