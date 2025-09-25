@@ -141,7 +141,7 @@ const ProfilePage = () => {
                     <img
                       src={
                         !data?.data?.user?.profileImg ||
-                        data?.data?.user?.profileImg === ""
+                        data?.data?.user?.profileImg.url === ""
                           ? profileImgPreview || "/avatar-placeholder.png"
                           : data?.data?.user?.profileImg.url
                       }
