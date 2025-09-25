@@ -52,5 +52,6 @@ app.use((error, req, res, next) => {
 });
 app.listen(port, () => {
   console.log("> Server is up and running on port : " + port);
+  console.log("NODE_ENV =>", process.env.NODE_ENV);
   connectMongoDB();
 });
