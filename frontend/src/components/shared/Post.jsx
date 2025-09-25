@@ -138,7 +138,7 @@ const Post = ({ post }) => {
             <span>{post.text}</span>
             {post.img && (
               <img
-                src={BASE_URL + "/uploads/images/" + post.img}
+                src={post.img}
                 className="h-80 object-contain rounded-lg border border-gray-700"
                 alt="post image"
               />
