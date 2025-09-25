@@ -12,7 +12,6 @@ import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date";
 import commentPostMutation from "../../mutations/post/commentPostMutation";
 import likePostMutation from "../../mutations/post/likePostMutation";
-const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
