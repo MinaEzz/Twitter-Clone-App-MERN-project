@@ -1,6 +1,6 @@
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("./cloudinary");
+const cloudinary = require("cloudinary").v2;
 
 const MIME_TYPE_MAP = {
   "image/jpg": "jpg",
