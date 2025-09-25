@@ -122,7 +122,12 @@ const login = async (req, res, next) => {
 
 const logout = async (req, res, next) => {
   try {
-    res.clearCookie("token");
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "none",
+      secure: process.env.NODE_ENV !== "development",
+      path: "/",
+    });
     res.status(200).json({
       status: SUCCESS,
       data: null,
