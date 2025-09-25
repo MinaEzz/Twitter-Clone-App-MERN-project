@@ -1,23 +1,41 @@
-📌 Project Description
+🐦 Twitter Clone (MERN Stack)
 
-A full-stack Twitter Clone built with the MERN stack (MongoDB, Express.js, React.js, Node.js).
-This project replicates core features of Twitter, allowing users to create accounts, post tweets, like, and interact with other users in real time.
+A full-stack Twitter/X clone built with the MERN stack.
+Includes authentication, posting tweets, likes, and user profiles — with a modern UI using React + Vite + Tailwind + DaisyUI.
 
-The goal of this project is to practice end-to-end web application development with authentication, CRUD operations, and responsive UI design.
+✨ Features
 
-🚀 Features
+🔐 Authentication (signup, login, logout with JWT + cookies)
 
-🔐 Authentication: Sign up, login, and JWT-based authentication
+📝 Tweet system (create, like, and view tweets)
 
-📝 Tweet Management: Create, read, delete tweets
+👤 User profiles with personal info
 
-❤️ Likes System: Like/unlike tweets in real time
+🎨 Responsive UI/UX with TailwindCSS + DaisyUI
 
-👤 User Profiles: View other users’ tweets and information
+🌐 Protected routes & role-based access
 
-📱 Responsive Design: Optimized for mobile and desktop
+⚡ Fast and optimized with Vite
 
-🌐 RESTful API: Backend API built with Node.js & Express
+🛠️ Tech Stack
 
-📊 MongoDB Integration: Persistent data storage
+Frontend: React, Vite, Tailwind CSS, DaisyUI
+
+Backend: Node.js, Express.js, Mongoose
+
+Database: MongoDB
+
+Authentication: JWT + Cookies
+
+Deployment:
+
+Frontend → Netlify
+
+Backend → Railway
+
+
+
+👨‍💻 Author
+
+Developed by Mina Ezzat 🚀
 
