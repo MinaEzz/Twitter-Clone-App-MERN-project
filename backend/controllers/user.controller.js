@@ -123,7 +123,6 @@ const updateUser = async (req, res, next) => {
   const userId = req.user._id;
   const { fullName, email, username, currentPassword, newPassword, bio, link } =
     req.body;
-  let profileImg, coverImg;
   try {
     let user = await User.findById(userId);
     if (!user) {
