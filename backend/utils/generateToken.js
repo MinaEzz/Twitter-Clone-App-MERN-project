@@ -14,7 +14,7 @@ const generateTokenAndSetCookie = (userId, res) => {
     maxAge: 2 * 24 * 60 * 60 * 1000,
     expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
     httpOnly: true, // prevent XSS (cross-site scripting) attacks
-    sameSite: "none",
+    sameSite: "none", // lax in dev - none in production
     secure: process.env.NODE_ENV !== "development",
     path: "/",
   });
